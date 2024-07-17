@@ -1,6 +1,6 @@
 #include "system_log.h"
 #include "console_controller.h"
-#include "system_memory.h"
+#include "system_physical_memory.h"
 
 #define OUTPUT_TYPE_MARKER (u'%')
 #define INT64_TYPE (u'd')

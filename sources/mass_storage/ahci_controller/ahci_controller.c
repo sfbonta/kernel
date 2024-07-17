@@ -4,7 +4,7 @@
 #include "port_controller/sata_port_controller/sata_port_controller.h"
 #include "system_log.h"
 #include "frame_information_structure.h"
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "utils.h"
 
 #define MODULE_TAG u"AHCI_CONTROLLER"
@@ -170,8 +170,8 @@ STATUS API AhciControllerInit(IN CONST PCIe_HEADER *PCIeHeader, IN CONST CHAR16 
 
     AHCI_CONTROLLER *Result = NULL_PTR;
     AHCI_CONTROLLER_INTERNAL *Internal = NULL_PTR;
-    MemoryAllocatePool((VOID **)&Result, sizeof(*Result));
-    MemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Result, sizeof(*Result));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
     Internal->NumberOfSataPortControllers = 0;
     MemoryCopy(DeviceName, Internal->DeviceName, 32 * sizeof(*DeviceName));
 

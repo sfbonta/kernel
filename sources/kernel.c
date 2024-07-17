@@ -1,6 +1,6 @@
 #include "kernel_arguments.h"
 #include "system_video.h"
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "utils.h"
 #include "console_controller.h"
 #include "system_fonts.h"
@@ -32,7 +32,7 @@ static PCIe_HEADER *PCIeDevices[32];
 
 STATUS API KernelEntry(KERNEL_ARGUMENTS *KernelArguments)
 {
-    SystemMemoryInit(KernelArguments->SystemMemory);
+    SystemPhysicalMemoryInit(KernelArguments->SystemMemory);
     SystemVideoInit(KernelArguments->VideoAdapter);
     SystemFontsInit(KernelArguments->CharatersBitmap);
     LogInit();

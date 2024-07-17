@@ -1,6 +1,6 @@
 #include "console_controller.h"
 
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "system_fonts.h"
 
 #define DEFAULT_CONSOLE_BACKGROUND_COLOR 0x00000000
@@ -46,7 +46,7 @@ STATUS API ConsoleControllerInit(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&ConsoleControllerOutput, sizeof(*ConsoleControllerOutput));
+    SystemPhysicalMemoryAllocatePool((VOID **)&ConsoleControllerOutput, sizeof(*ConsoleControllerOutput));
     if (NULL_PTR == ConsoleControllerOutput)
     {
         Status = E_NOT_OK;
@@ -54,7 +54,7 @@ STATUS API ConsoleControllerInit(
     }
 
     ConsoleControllerOutput->Internal = NULL_PTR;
-    MemoryAllocatePool((VOID **)&ConsoleControllerOutput->Internal, sizeof(*ConsoleControllerOutput->Internal));
+    SystemPhysicalMemoryAllocatePool((VOID **)&ConsoleControllerOutput->Internal, sizeof(*ConsoleControllerOutput->Internal));
     if (NULL_PTR == ConsoleControllerOutput->Internal)
     {
         Status = E_NOT_OK;

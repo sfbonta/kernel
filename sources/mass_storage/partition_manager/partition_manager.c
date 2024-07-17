@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "system_log.h"
 #include "master_boot_record.h"
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "system_mass_storage.h"
 
 #define MODULE_TAG u"PARTITION_MANAGER"
@@ -81,13 +81,13 @@ STATUS API PartitionManagerRemoveFile(
 STATUS API PartitionManagerInit(CONST CHAR16 *DevicePath, OUT PARTITION_MANAGER **PartitionManager)
 {
     PARTITION_MANAGER *Result = NULL_PTR;
-    MemoryAllocatePool((VOID **)&Result, sizeof(*Result));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Result, sizeof(*Result));
 
     PARTITION_MANAGER_INTERNAL *Internal = NULL_PTR;
-    MemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
 
     DEVICE_ENTRY *DeviceEntryBuffer = NULL_PTR;
-    MemoryAllocatePool((VOID **)&DeviceEntryBuffer, sizeof(*DeviceEntryBuffer));
+    SystemPhysicalMemoryAllocatePool((VOID **)&DeviceEntryBuffer, sizeof(*DeviceEntryBuffer));
 
     SystemMassStorageReadSectors(DevicePath, 0, sizeof(*DeviceEntryBuffer) / 512, DeviceEntryBuffer);
     LOG_INFO(u"Found Partion named: %s", DeviceEntryBuffer->GptEntries[0].PartitionName);
@@ -225,7 +225,7 @@ STATUS API PartitionManagerOpenDirectory(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&PartitionManagerHandle, sizeof(*PartitionManagerHandle));
+    SystemPhysicalMemoryAllocatePool((VOID **)&PartitionManagerHandle, sizeof(*PartitionManagerHandle));
     if (NULL_PTR == PartitionManagerHandle)
     {
         Status = E_NOT_OK;
@@ -348,7 +348,7 @@ STATUS API PartitionManagerOpenFile(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&PartitionManagerHandle, sizeof(*PartitionManagerHandle));
+    SystemPhysicalMemoryAllocatePool((VOID **)&PartitionManagerHandle, sizeof(*PartitionManagerHandle));
     if (NULL_PTR == PartitionManagerHandle)
     {
         Status = E_NOT_OK;

@@ -1,6 +1,6 @@
 #include "fat32_partition_manager.h"
 
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "system_mass_storage.h"
 #include "system_log.h"
 #include "utils.h"
@@ -200,25 +200,25 @@ STATUS API Fat32PartitionManagerInit(IN CONST CHAR16 *DevicePath,
                                      OUT FAT32_PARTITION_MANAGER **Fat32PartitionManager)
 {
     FAT32_PARTITION_MANAGER *Result = NULL_PTR;
-    MemoryAllocatePool((VOID **)&Result, sizeof(*Result));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Result, sizeof(*Result));
 
     FAT32_PARTITION_MANAGER_INTERNAL *Internal = NULL_PTR;
-    MemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
 
     BIOS_PARAMETER_BLOCK *BiosParameterBlock = NULL_PTR;
-    MemoryAllocatePool((VOID **)&BiosParameterBlock, sizeof(*BiosParameterBlock));
+    SystemPhysicalMemoryAllocatePool((VOID **)&BiosParameterBlock, sizeof(*BiosParameterBlock));
     SystemMassStorageReadSectors(DevicePath, StartSector + 0, sizeof(*BiosParameterBlock) / BYTES_PER_SECTOR, BiosParameterBlock);
 
     FILE_SECTOR_INFO *FileSectorInfo = NULL_PTR;
-    MemoryAllocatePool((VOID **)&FileSectorInfo, sizeof(*FileSectorInfo));
+    SystemPhysicalMemoryAllocatePool((VOID **)&FileSectorInfo, sizeof(*FileSectorInfo));
     SystemMassStorageReadSectors(DevicePath, StartSector + 1, sizeof(*FileSectorInfo) / BYTES_PER_SECTOR, FileSectorInfo);
 
     UINT32 *FATs = NULL_PTR;
-    MemoryAllocatePool((VOID **)&FATs, BiosParameterBlock->FATSize32 * BYTES_PER_SECTOR);
+    SystemPhysicalMemoryAllocatePool((VOID **)&FATs, BiosParameterBlock->FATSize32 * BYTES_PER_SECTOR);
     SystemMassStorageReadSectors(DevicePath, StartSector + BiosParameterBlock->ReservedSectorsCount, BiosParameterBlock->FATSize32, FATs);
 
     UINT32 *MirrorFATs = NULL_PTR;
-    MemoryAllocatePool((VOID **)&MirrorFATs, BiosParameterBlock->FATSize32 * BYTES_PER_SECTOR);
+    SystemPhysicalMemoryAllocatePool((VOID **)&MirrorFATs, BiosParameterBlock->FATSize32 * BYTES_PER_SECTOR);
     SystemMassStorageReadSectors(DevicePath, StartSector + BiosParameterBlock->ReservedSectorsCount + BiosParameterBlock->FATSize32, BiosParameterBlock->FATSize32, MirrorFATs);
 
     UINT64 FirstDataSector = StartSector + BiosParameterBlock->ReservedSectorsCount + BiosParameterBlock->FATSize32 * BiosParameterBlock->NumberFATs;
@@ -358,7 +358,7 @@ STATUS API Fat32PartitionManagerOpenDirectory(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&Fat32PartitionManagerHandle, sizeof(*Fat32PartitionManagerHandle));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Fat32PartitionManagerHandle, sizeof(*Fat32PartitionManagerHandle));
     if (NULL_PTR == Fat32PartitionManagerHandle)
     {
         Status = E_NOT_OK;
@@ -413,7 +413,7 @@ STATUS API Fat32PartitionManagerCloseDirectory(
         Status = E_NOT_OK;
         goto Cleanup;
     }
-    Status = MemoryFreePool((VOID **)&Handle);
+    Status = SystemPhysicalMemoryFreePool((VOID **)&Handle, sizeof(FAT32_PARTITION_MANAGER_HANDLE));
 
 Cleanup:
     (VOID) Fat32PartitionManager;
@@ -455,7 +455,7 @@ STATUS API Fat32PartitionManagerReadDirectoryContent(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&Result, sizeof(*Result));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Result, sizeof(*Result));
     if (NULL_PTR == Result)
     {
         Status = E_NOT_OK;
@@ -464,7 +464,7 @@ STATUS API Fat32PartitionManagerReadDirectoryContent(
 
     DIRECTORY_ENTRY *DirectoryEntries = NULL_PTR;
     DIRECTORY_ENTRY *OppenedDirectory = &DirectoryEntries[Fat32PartitionManagerHandle->ClusterOffset / sizeof(*DirectoryEntries)];
-    MemoryAllocatePages((VOID **)&DirectoryEntries, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
+    SystemPhysicalMemoryAllocatePages((VOID **)&DirectoryEntries, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
     SystemMassStorageReadSectors(Internal->DevicePath, Internal->FirstDataSector + (Fat32PartitionManagerHandle->CurrentCluster - 2) * SECTORS_PER_CLUSTER, SECTORS_PER_CLUSTER, DirectoryEntries);
 
     if (0 != OppenedDirectory->Name[0])
@@ -591,7 +591,7 @@ STATUS API Fat32PartitionManagerOpenFile(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&Fat32PartitionManagerHandle, sizeof(*Fat32PartitionManagerHandle));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Fat32PartitionManagerHandle, sizeof(*Fat32PartitionManagerHandle));
     if (NULL_PTR == Fat32PartitionManagerHandle)
     {
         Status = E_NOT_OK;
@@ -647,7 +647,7 @@ STATUS API Fat32PartitionManagerCloseFile(
         Status = E_NOT_OK;
         goto Cleanup;
     }
-    Status = MemoryFreePool((VOID **)&Handle);
+    Status = SystemPhysicalMemoryFreePool((VOID **)&Handle, sizeof(FAT32_PARTITION_MANAGER_HANDLE));
 
 Cleanup:
     (VOID) Fat32PartitionManager;
@@ -704,7 +704,7 @@ STATUS API Fat32PartitionManagerWriteFile(
         goto Cleanup;
     }
 
-    MemoryAllocatePages((VOID **)&ClusterBuffer, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
+    SystemPhysicalMemoryAllocatePages((VOID **)&ClusterBuffer, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
     if (NULL_PTR == ClusterBuffer)
     {
         Status = E_NOT_OK;
@@ -752,7 +752,7 @@ STATUS API Fat32PartitionManagerWriteFile(
 Cleanup:
     if (NULL_PTR != ClusterBuffer)
     {
-        MemoryFreePool((VOID **)&ClusterBuffer);
+        SystemPhysicalMemoryFreePool((VOID **)&ClusterBuffer, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
     }
 
     return Status;
@@ -847,7 +847,7 @@ static STATUS API CreateDefaultDirectoryEntry(IN FAT32_PARTITION_MANAGER_INTERNA
                                               UINT32 ParrentDirectoryCluster)
 {
     DIRECTORY_ENTRY *DirectoryEntries = NULL_PTR;
-    MemoryAllocatePages((VOID **)&DirectoryEntries, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
+    SystemPhysicalMemoryAllocatePages((VOID **)&DirectoryEntries, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
     SystemMassStorageReadSectors(Internal->DevicePath, Internal->FirstDataSector + (CurrentCluster - 2) * SECTORS_PER_CLUSTER, SECTORS_PER_CLUSTER, DirectoryEntries);
 
     if (2 == ParrentDirectoryCluster)
@@ -872,7 +872,7 @@ static STATUS API FindEntryCluster(IN FAT32_PARTITION_MANAGER_INTERNAL *Internal
                                    OUT OPTIONAL UINT64 *EntrySize)
 {
     DIRECTORY_ENTRY *DirectoryEntries = NULL_PTR;
-    MemoryAllocatePages((VOID **)&DirectoryEntries, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
+    SystemPhysicalMemoryAllocatePages((VOID **)&DirectoryEntries, SECTORS_PER_CLUSTER * BYTES_PER_SECTOR);
     SystemMassStorageReadSectors(Internal->DevicePath, Internal->FirstDataSector + (CurrentCluster - 2) * SECTORS_PER_CLUSTER, SECTORS_PER_CLUSTER, DirectoryEntries);
 
     for (UINT64 i = 0; i < NUMBER_OF_ENTRIES_IN_A_CLUSTERS; ++i)

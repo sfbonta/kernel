@@ -1,6 +1,6 @@
 #include "system_video.h"
 
-#include "system_memory.h"
+#include "system_physical_memory.h"
 
 typedef struct _SYSTEM_VIDEO
 {
@@ -61,7 +61,7 @@ STATUS API SystemVideoInit(IN CONST VIDEO_ADAPTER *VideoAdapter)
 
     NumberOfApplications = 0;
     Applications = NULL_PTR;
-    MemoryAllocatePages((VOID **)&Applications, 10 * sizeof(*Applications));
+    SystemPhysicalMemoryAllocatePages((VOID **)&Applications, 10 * sizeof(*Applications));
     IsInitialized = TRUE;
 
 Cleanup:

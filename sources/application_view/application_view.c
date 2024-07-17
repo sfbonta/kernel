@@ -1,6 +1,6 @@
 #include "application_view.h"
 
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "system_video.h"
 #include "utils.h"
 
@@ -38,7 +38,7 @@ STATUS API ApplicationViewInit(
         goto Cleanup;
     }
 
-    MemoryAllocatePool((VOID **)&ApplicationViewOutput, sizeof(*ApplicationViewOutput));
+    SystemPhysicalMemoryAllocatePool((VOID **)&ApplicationViewOutput, sizeof(*ApplicationViewOutput));
     if (NULL_PTR == ApplicationViewOutput)
     {
         Status = E_NOT_OK;
@@ -46,7 +46,7 @@ STATUS API ApplicationViewInit(
     }
 
     ApplicationViewOutput->Info = NULL_PTR;
-    MemoryAllocatePool((VOID **)&ApplicationViewOutput->Info, sizeof(*ApplicationViewOutput->Info));
+    SystemPhysicalMemoryAllocatePool((VOID **)&ApplicationViewOutput->Info, sizeof(*ApplicationViewOutput->Info));
     if (NULL_PTR == ApplicationViewOutput->Info)
     {
         Status = E_NOT_OK;
@@ -54,7 +54,7 @@ STATUS API ApplicationViewInit(
     }
 
     ApplicationViewOutput->Info->FrameBuffer = NULL_PTR;
-    MemoryAllocatePool((VOID **)&ApplicationViewOutput->Info->FrameBuffer, Width * Height * sizeof(*ApplicationViewOutput->Info->FrameBuffer));
+    SystemPhysicalMemoryAllocatePool((VOID **)&ApplicationViewOutput->Info->FrameBuffer, Width * Height * sizeof(*ApplicationViewOutput->Info->FrameBuffer));
     if (NULL_PTR == ApplicationViewOutput->Info->FrameBuffer)
     {
         Status = E_NOT_OK;
@@ -83,14 +83,14 @@ Cleanup:
             {
                 if (NULL_PTR != ApplicationViewOutput->Info->FrameBuffer)
                 {
-                    MemoryFreePool((VOID **)&ApplicationViewOutput->Info->FrameBuffer);
+                    SystemPhysicalMemoryFreePool((VOID **)&ApplicationViewOutput->Info->FrameBuffer, Width * Height * sizeof(*ApplicationViewOutput->Info->FrameBuffer));
                     ApplicationViewOutput->Info->FrameBuffer = NULL_PTR;
                 }
 
-                MemoryFreePool((VOID **)&ApplicationViewOutput->Info);
+                SystemPhysicalMemoryFreePool((VOID **)&ApplicationViewOutput->Info, sizeof(*ApplicationViewOutput->Info));
                 ApplicationViewOutput->Info = NULL_PTR;
             }
-            MemoryFreePool((VOID **)&ApplicationViewOutput);
+            SystemPhysicalMemoryFreePool((VOID **)&ApplicationViewOutput, sizeof(*ApplicationViewOutput));
             ApplicationViewOutput = NULL_PTR;
         }
     }

@@ -2,7 +2,7 @@
 .PHONY: build clean
 
 INCLUDE_DIRS = -Isources/kernel_arguments \
-			   -Isources/system_memory \
+			   -Isources/system_physical_memory \
 			   -Isources/system_video \
 			   -Isources/application_view \
 			   -Isources/system_fonts \
@@ -29,7 +29,7 @@ INCLUDE_DIRS = -Isources/kernel_arguments \
 			   -I../utils
 
 SOURCES = sources/kernel.c \
-          sources/system_memory/system_memory.c \
+          sources/system_physical_memory/system_physical_memory.c \
           sources/system_video/system_video.c \
 		  sources/application_view/application_view.c \
 		  sources/system_fonts/system_fonts.c \

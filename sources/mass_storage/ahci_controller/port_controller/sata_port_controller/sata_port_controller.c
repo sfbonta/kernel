@@ -1,7 +1,7 @@
 #include "sata_port_controller.h"
 
 #include "frame_information_structure.h"
-#include "system_memory.h"
+#include "system_physical_memory.h"
 #include "utils.h"
 #include "system_log.h"
 
@@ -39,8 +39,8 @@ STATUS API SataPortControllerInit(PORT_CONTROL *PortControl, IN CONST CHAR16 *De
 {
     SATA_PORT_CONTROLLER *Result = NULL_PTR;
     SATA_PORT_CONTROLLER_INTERNAL *Internal = NULL_PTR;
-    MemoryAllocatePool((VOID **)&Result, sizeof(*Result));
-    MemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Result, sizeof(*Result));
+    SystemPhysicalMemoryAllocatePool((VOID **)&Internal, sizeof(*Internal));
     Internal->PortControl = PortControl;
     RebasePort(PortControl);
     MemoryCopy(DeviceName, Internal->DeviceName, 32 * sizeof(*DeviceName));
@@ -313,7 +313,7 @@ static STATUS API RebasePort(PORT_CONTROL *PortControl)
     COMMAND_HEADER *CommandHeader = NULL_PTR;
     VOID *MemoryZone = NULL_PTR;
     UINT64 Offset = 0;
-    MemoryAllocatePool(&MemoryZone, 32 * sizeof(COMMAND_HEADER));
+    SystemPhysicalMemoryAllocatePool(&MemoryZone, 32 * sizeof(COMMAND_HEADER));
     MemorySet(MemoryZone, 0, 32 * sizeof(COMMAND_HEADER));
     Offset = (UINT64)MemoryZone;
     PortControl->CommandListBaseAddressLow = ((Offset >> 0) & 0xFFFFFFFF);
@@ -322,7 +322,7 @@ static STATUS API RebasePort(PORT_CONTROL *PortControl)
 
     MemoryZone = NULL_PTR;
     Offset = 0;
-    MemoryAllocatePool(&MemoryZone, sizeof(RECEIVED_FIS_STRUCTURE));
+    SystemPhysicalMemoryAllocatePool(&MemoryZone, sizeof(RECEIVED_FIS_STRUCTURE));
     MemorySet(MemoryZone, 0, sizeof(RECEIVED_FIS_STRUCTURE));
     Offset = (UINT64)MemoryZone;
     PortControl->FisBaseAddressLow = ((Offset >> 0) & 0xFFFFFFFF);
@@ -332,7 +332,7 @@ static STATUS API RebasePort(PORT_CONTROL *PortControl)
     {
         MemoryZone = NULL_PTR;
         Offset = 0;
-        MemoryAllocatePool(&MemoryZone, sizeof(COMMAND_TABLE) + 1024 * sizeof(PHYSICAL_REGION_DESCRIPTOR_TABLE_ENTRY));
+        SystemPhysicalMemoryAllocatePool(&MemoryZone, sizeof(COMMAND_TABLE) + 1024 * sizeof(PHYSICAL_REGION_DESCRIPTOR_TABLE_ENTRY));
         MemorySet(MemoryZone, 0, sizeof(COMMAND_TABLE) + 1024 * sizeof(PHYSICAL_REGION_DESCRIPTOR_TABLE_ENTRY));
         Offset = (UINT64)MemoryZone;
 
