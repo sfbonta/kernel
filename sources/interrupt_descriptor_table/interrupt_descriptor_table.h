@@ -1,0 +1,14 @@
+#ifndef _INTERRUPT_DESCRIPTOR_TABLE_H_
+#define _INTERRUPT_DESCRIPTOR_TABLE_H_
+
+#include "platform_types.h"
+
+#define TYPE_ATTRIBUTES_TRAP 0x8F
+#define TYPE_ATTRIBUTES_INTERRUPT 0x8E
+#define TYPE_ATTRIBUTES_SYSCALL 0xEE
+
+STATUS API InterruptDescriptorTableInit(VOID);
+
+STATUS API InterruptDescriptorTableSetISR(IN CONST UINT8 IsrNumber, IN CONST UINT64 IsrAddress, IN CONST UINT8 TypeAttributes);
+
+#endif /* _INTERRUPT_DESCRIPTOR_TABLE_H_ */
